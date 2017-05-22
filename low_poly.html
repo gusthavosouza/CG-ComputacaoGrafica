@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ATIVIDADE - CG</title>
+    <meta name="author" content="Gustavo de Souza / Henry Turner">
+    <meta name="matriculas" content="55518-5 / 55553-2">
+    <script src="lib/build/three.min.js"></script>
+
+    <script type="text/javascript">
+
+    function pintar(face, color) {
+      face.vertexColors[0] = new THREE.Color(color);
+      face.vertexColors[1] = new THREE.Color(color);
+      face.vertexColors[2] = new THREE.Color(color);
+    }
+
+    function vertice2 (x, y) {
+      return new THREE.Vector3(x, y, 0.0)
+    }
+
+    function face3 (v0, v1, v2) {
+      return new THREE.Face3(v0, v1, v2);
+    }
+
+    </script>
+
+    <style media="screen">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html, body {
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+
+    <script type="text/javascript">
+
+      var scene = new THREE.Scene(); // instancia a cena
+      var camera = new THREE.PerspectiveCamera(160, window.innerWidth / window.innerHeight, 0.1, 1000); // instancia a camera
+      var renderer = new THREE.WebGLRenderer(); // instancia o renderizador
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // limpa a tela com a cor definida
+      renderer.setClearColor(0x66d2de, 1);
+
+      document.body.appendChild(renderer.domElement);
+
+      camera.position.z = 2;
+      camera.position.x = 10;
+      camera.position.y = 5;
+
+
+      var triangleGeometry = new THREE.Geometry();
+
+      // define os vertices que serão desenhados.
+      triangleGeometry.vertices.push(new THREE.Vector3(19.9, 5.9, 0.0)); // v0
+      triangleGeometry.vertices.push(new THREE.Vector3(18.3, 6.3, 0.0)); // v1
+      triangleGeometry.vertices.push(new THREE.Vector3(18.6, 6.6, 0.0)); // v2
+      triangleGeometry.vertices.push(new THREE.Vector3(18.1, 7.5, 0.0)); // v3
+
+      triangleGeometry.vertices.push(new THREE.Vector3(16.95, 7.3, 0.0)); // v4
+      triangleGeometry.vertices.push(new THREE.Vector3(18.3, 8.4, 0.0)); // v5
+      triangleGeometry.vertices.push(new THREE.Vector3(18.2, 8.0, 0.0)); // v6
+      triangleGeometry.vertices.push(new THREE.Vector3(19.1, 8.7, 0.0)); // v7
+
+      triangleGeometry.vertices.push(new THREE.Vector3(17.2, 7.0, 0.0)); // v8
+      triangleGeometry.vertices.push(new THREE.Vector3(17.1, 7.1, 0.0)); // v9
+      triangleGeometry.vertices.push(new THREE.Vector3(15.3, 6.6, 0.0)); // v10
+      triangleGeometry.vertices.push(new THREE.Vector3(14.4, 7.6, 0.0)); // v11
+
+      triangleGeometry.vertices.push(new THREE.Vector3(10.8, 7.0, 0.0)); // v12
+      triangleGeometry.vertices.push(new THREE.Vector3(12.3, 5.0, 0.0)); // v13
+      triangleGeometry.vertices.push(new THREE.Vector3(12.6, 4.5, 0.0)); // v14
+
+      triangleGeometry.vertices.push(new THREE.Vector3(9.9, 3.0, 0.0)); // v15
+      triangleGeometry.vertices.push(new THREE.Vector3(10.4, 4.0, 0.0)); // v16
+      triangleGeometry.vertices.push(new THREE.Vector3(11.0, 4.2, 0.0)); // v17
+      triangleGeometry.vertices.push(new THREE.Vector3(11.0, 4.9, 0.0)); // v18
+      triangleGeometry.vertices.push(new THREE.Vector3(11.5, 5.5, 0.0)); // v19
+      triangleGeometry.vertices.push(new THREE.Vector3(11.5, 5.6, 0.0)); // v20
+      triangleGeometry.vertices.push(new THREE.Vector3(8.3, 5.1, 0.0)); // v21
+      triangleGeometry.vertices.push(new THREE.Vector3(8.8, 7.3, 0.0)); // v22
+
+      triangleGeometry.vertices.push(new THREE.Vector3(8.8, 8.8, 0.0)); // v23
+      triangleGeometry.vertices.push(new THREE.Vector3(9.5, 10.3, 0.0)); // v24
+      triangleGeometry.vertices.push(new THREE.Vector3(7.5, 9.0, 0.0)); // v25
+      triangleGeometry.vertices.push(new THREE.Vector3(6.1, 6.7, 0.0)); // v26
+      triangleGeometry.vertices.push(new THREE.Vector3(4.5, 4.5, 0.0)); // v27
+      triangleGeometry.vertices.push(new THREE.Vector3(6.5, 2.8, 0.0)); // v28
+      triangleGeometry.vertices.push(new THREE.Vector3(4.8, 3.2, 0.0)); // v29
+      triangleGeometry.vertices.push(new THREE.Vector3(6.8, 2.7, 0.0)); // v30
+      triangleGeometry.vertices.push(new THREE.Vector3(4.8, 6.2, 0.0)); // v31
+
+      triangleGeometry.vertices.push(new THREE.Vector3(3.8, 5.1, 0.0)); // v32
+      triangleGeometry.vertices.push(new THREE.Vector3(3.5, 4.3, 0.0)); // v33
+      triangleGeometry.vertices.push(new THREE.Vector3(2.5, 4.8, 0.0)); // v34
+      triangleGeometry.vertices.push(new THREE.Vector3(3.0, 5.5, 0.0)); // v35
+      triangleGeometry.vertices.push(new THREE.Vector3(2.9, 3.9, 0.0)); // v36
+      triangleGeometry.vertices.push(new THREE.Vector3(3.8, 4.0, 0.0)); // v37
+
+      triangleGeometry.vertices.push(new THREE.Vector3(2.0, 5.0, 0.0)); // v38
+      triangleGeometry.vertices.push(new THREE.Vector3(1.1, 4.1, 0.0)); // v39
+      triangleGeometry.vertices.push(new THREE.Vector3(2.9, 3.7, 0.0)); // v40
+      triangleGeometry.vertices.push(new THREE.Vector3(2.9, 3.0, 0.0)); // v41
+      triangleGeometry.vertices.push(new THREE.Vector3(4.0, 3.4, 0.0)); // v42
+      triangleGeometry.vertices.push(new THREE.Vector3(4.5, 2.8, 0.0)); // v43
+
+      triangleGeometry.vertices.push(new THREE.Vector3(6.6, 1.7, 0.0)); // v44
+      triangleGeometry.vertices.push(new THREE.Vector3(5.0, 1.3, 0.0)); // v45
+      triangleGeometry.vertices.push(new THREE.Vector3(6.5, 0.2, 0.0)); // v46
+      triangleGeometry.vertices.push(new THREE.Vector3(7.3, 0.0, 0.0)); // v47
+      triangleGeometry.vertices.push(new THREE.Vector3(7.3, 0.9, 0.0)); // v48
+
+      triangleGeometry.vertices.push(new THREE.Vector3(6.6, 2.0, 0.0)); // v49
+      triangleGeometry.vertices.push(new THREE.Vector3(7.3, 1.6, 0.0)); // v50
+      triangleGeometry.vertices.push(new THREE.Vector3(8.0, 1.5, 0.0)); // v51
+      triangleGeometry.vertices.push(new THREE.Vector3(8.1, 2.0, 0.0)); // v52
+      triangleGeometry.vertices.push(new THREE.Vector3(8.0, 2.8, 0.0)); // v53
+
+      // conecta os vertices.
+      triangleGeometry.faces.push(new THREE.Face3(0, 1, 2)); // face0
+      triangleGeometry.faces.push(new THREE.Face3(1, 2, 3)); // face1
+      triangleGeometry.faces.push(new THREE.Face3(1, 3, 4)); // face2
+      triangleGeometry.faces.push(new THREE.Face3(3, 4, 5)); // face3
+      triangleGeometry.faces.push(new THREE.Face3(5, 6, 7)); // face4
+
+      triangleGeometry.faces.push(new THREE.Face3(8, 9, 10)); // face5
+      triangleGeometry.faces.push(new THREE.Face3(4, 9, 10)); // face6
+      triangleGeometry.faces.push(new THREE.Face3(10, 4, 11)); // face7
+
+      triangleGeometry.faces.push(new THREE.Face3(10, 11, 12)); // face8
+      triangleGeometry.faces.push(new THREE.Face3(10, 12, 13)); // face9
+      triangleGeometry.faces.push(new THREE.Face3(10, 13, 14)); // face10
+
+      triangleGeometry.faces.push(new THREE.Face3(13, 14, 15)); // face11
+      triangleGeometry.faces.push(new THREE.Face3(13, 15, 17)); // face12
+      triangleGeometry.faces.push(new THREE.Face3(15, 16, 17)); // face13
+      triangleGeometry.faces.push(new THREE.Face3(16, 17, 18)); // face14
+      triangleGeometry.faces.push(new THREE.Face3(17, 18, 19)); // face15
+      triangleGeometry.faces.push(new THREE.Face3(18, 19, 20)); // face16
+
+      triangleGeometry.faces.push(new THREE.Face3(13, 17, 19)); // face17
+      triangleGeometry.faces.push(new THREE.Face3(13, 19, 20)); // face18
+      triangleGeometry.faces.push(new THREE.Face3(12, 13, 20)); // face19
+      triangleGeometry.faces.push(new THREE.Face3(12, 15, 20)); // face20
+      triangleGeometry.faces.push(new THREE.Face3(12, 22, 21)); // face21
+      triangleGeometry.faces.push(new THREE.Face3(12, 15, 21)); // face22
+
+      triangleGeometry.faces.push(new THREE.Face3(22, 23, 25)); // face23
+      triangleGeometry.faces.push(new THREE.Face3(22, 25, 26)); // face24
+      triangleGeometry.faces.push(new THREE.Face3(23, 24, 25)); // face25
+
+      triangleGeometry.faces.push(new THREE.Face3(21, 22, 27)); // face26
+      triangleGeometry.faces.push(new THREE.Face3(22, 26, 27)); // face27
+      triangleGeometry.faces.push(new THREE.Face3(15, 21, 27)); // face28
+      triangleGeometry.faces.push(new THREE.Face3(15, 27, 28)); // face29
+      triangleGeometry.faces.push(new THREE.Face3(27, 29, 30)); // face30
+      triangleGeometry.faces.push(new THREE.Face3(26, 27, 31)); // face31
+
+      triangleGeometry.faces.push(new THREE.Face3(31, 32, 35)); // face31
+      triangleGeometry.faces.push(new THREE.Face3(27, 32, 33)); // face32
+      triangleGeometry.faces.push(new THREE.Face3(27, 32, 31)); // face33
+      triangleGeometry.faces.push(new THREE.Face3(29, 27, 36)); // face34
+      triangleGeometry.faces.push(new THREE.Face3(33, 27, 37)); // face35
+      triangleGeometry.faces.push(new THREE.Face3(29, 27, 37)); // face36
+      triangleGeometry.faces.push(new THREE.Face3(33, 36, 37)); // face37
+
+      triangleGeometry.faces.push(new THREE.Face3(32, 27, 33)); // face38
+      triangleGeometry.faces.push(new THREE.Face3(33, 32, 34)); // face39
+      triangleGeometry.faces.push(new THREE.Face3(34, 35, 32)); // face40
+      triangleGeometry.faces.push(new THREE.Face3(38, 35, 34)); // face42
+      triangleGeometry.faces.push(new THREE.Face3(38, 39, 34)); // face43
+      triangleGeometry.faces.push(new THREE.Face3(39, 36, 34)); // face44
+      triangleGeometry.faces.push(new THREE.Face3(33, 34, 36)); // face45
+
+      triangleGeometry.faces.push(new THREE.Face3(39, 40, 36)); // face46
+      triangleGeometry.faces.push(new THREE.Face3(39, 40, 41)); // face47
+      triangleGeometry.faces.push(new THREE.Face3(36, 37, 40)); // face
+      triangleGeometry.faces.push(new THREE.Face3(37, 40, 42)); // face
+      triangleGeometry.faces.push(new THREE.Face3(40, 41, 42)); // face
+      triangleGeometry.faces.push(new THREE.Face3(41, 42, 43)); // face
+      triangleGeometry.faces.push(new THREE.Face3(29, 42, 43)); // face
+      triangleGeometry.faces.push(new THREE.Face3(29, 42, 37)); // face
+      triangleGeometry.faces.push(new THREE.Face3(28, 30, 15)); // face
+      triangleGeometry.faces.push(new THREE.Face3(30, 43, 29)); // face55
+
+      triangleGeometry.faces.push(new THREE.Face3(30, 43, 44)); // face56
+      triangleGeometry.faces.push(new THREE.Face3(43, 44, 45)); // face57
+      triangleGeometry.faces.push(new THREE.Face3(44, 45, 46)); // face58
+      triangleGeometry.faces.push(new THREE.Face3(44, 46, 47)); // face59
+
+      triangleGeometry.faces.push(new THREE.Face3(30, 49, 50)); // face60
+      triangleGeometry.faces.push(new THREE.Face3(30, 50, 51)); // face61
+      triangleGeometry.faces.push(new THREE.Face3(30, 51, 52)); // face62
+      triangleGeometry.faces.push(new THREE.Face3(30, 52, 53)); // face63
+
+      // colorir os vertices
+      pintar(triangleGeometry.faces[0], 0x181723);
+      pintar(triangleGeometry.faces[1], 0x181723);
+      pintar(triangleGeometry.faces[2], 0x181723);
+      pintar(triangleGeometry.faces[3], 0x2D2C3A);
+      pintar(triangleGeometry.faces[4], 0x181723);
+
+      pintar(triangleGeometry.faces[5], 0xB4AEA5);
+      pintar(triangleGeometry.faces[6], 0x2D2C3A);
+      pintar(triangleGeometry.faces[7], 0x2D2C3A);
+
+      pintar(triangleGeometry.faces[8], 0x181723);
+      pintar(triangleGeometry.faces[9], 0x3F3A4C);
+      pintar(triangleGeometry.faces[10], 0xB4AEA5);
+
+      pintar(triangleGeometry.faces[11], 0xB4AEA5);
+      pintar(triangleGeometry.faces[12], 0xB4AEA5);
+      pintar(triangleGeometry.faces[13], 0xB4AEA5);
+      pintar(triangleGeometry.faces[14], 0xB4AEA5);
+      pintar(triangleGeometry.faces[15], 0xB4AEA5);
+      pintar(triangleGeometry.faces[16], 0xB4AEA5);
+
+      pintar(triangleGeometry.faces[17], 0x3F3A4C);
+      pintar(triangleGeometry.faces[18], 0x3F3A4C);
+      pintar(triangleGeometry.faces[19], 0x3F3A4C);
+      pintar(triangleGeometry.faces[20], 0x3F3A4C);
+      pintar(triangleGeometry.faces[21], 0X322738);
+      pintar(triangleGeometry.faces[22], 0X393444);
+
+      pintar(triangleGeometry.faces[23], 0X393444);
+      pintar(triangleGeometry.faces[24], 0X393444);
+      pintar(triangleGeometry.faces[25], 0X393444);
+
+      pintar(triangleGeometry.faces[26], 0X393444);
+      pintar(triangleGeometry.faces[27], 0x3f3a4c);
+      pintar(triangleGeometry.faces[28], 0x282130);
+      pintar(triangleGeometry.faces[29], 0x282130);
+      pintar(triangleGeometry.faces[30], 0x282130);
+      pintar(triangleGeometry.faces[31], 0x282130);
+
+      pintar(triangleGeometry.faces[32], 0x282130);
+      pintar(triangleGeometry.faces[33], 0x282130);
+      pintar(triangleGeometry.faces[34], 0x282130);
+      pintar(triangleGeometry.faces[35], 0x282130);
+      pintar(triangleGeometry.faces[36], 0x282130);
+      pintar(triangleGeometry.faces[37], 0x282130);
+      pintar(triangleGeometry.faces[38], 0x282130);
+      pintar(triangleGeometry.faces[41], 0x282130);
+      pintar(triangleGeometry.faces[42], 0x282130);
+      pintar(triangleGeometry.faces[43], 0x282130);
+      pintar(triangleGeometry.faces[44], 0x282130);
+      pintar(triangleGeometry.faces[45], 0x282130);
+
+      pintar(triangleGeometry.faces[55], 0x282130);
+      pintar(triangleGeometry.faces[56], 0x282130);
+      pintar(triangleGeometry.faces[57], 0x282130);
+      pintar(triangleGeometry.faces[58], 0x282130);
+      pintar(triangleGeometry.faces[59], 0x282130);
+
+      pintar(triangleGeometry.faces[60], 0x282130);
+      pintar(triangleGeometry.faces[61], 0x282130);
+      pintar(triangleGeometry.faces[62], 0x282130);
+      pintar(triangleGeometry.faces[63], 0x282130);
+
+      var triangleMaterial = new THREE.MeshBasicMaterial({
+        side: THREE.DoubleSide,
+        vertexColors: THREE.VertexColors
+      });
+
+      var triangleMesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+
+      triangleMesh.position.set(0.0, 0.0, 0.0);
+
+      scene.add(triangleMesh);
+
+      renderer.render(scene, camera);
+
+    </script>
+
+  </body>
+</html>

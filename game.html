@@ -56,25 +56,27 @@ a {
 		var keyboard = new THREEx.KeyboardState();
 		var mainLight;
 
+		var fullGround = new Array();
+
 		var audio = document.createElement('audio');
 		var source = document.createElement('source');
 		source.src = 'songs/game_song.wav';
 		audio.appendChild(source);
 		audio.loop = true;
 		audio.play();
-		
+
+		var FRENTE = 1;
+		var DIREITA = 2;
+		var ESQUERDA = 3;
+
 		init();
 		animate();
 
 		function init() {
 
-			var FRENTE = 1;
-			var DIREITA = 2;
-			var ESQUERDA = 3;
-
-			var MAP = [ FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
+			var MAP = [FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
 					FRENTE, DIREITA, DIREITA, FRENTE, ESQUERDA, ESQUERDA,
-					FRENTE ];
+					FRENTE, FRENTE];
 			var container = document.getElementById('container');
 
 			// renderer
@@ -92,10 +94,10 @@ a {
 
 			cameraControls = new THREE.OrbitControls(camera,
 					renderer.domElement);
-			//  			cameraControls.target.set(0, 40, 0);
+			//  cameraControls.target.set(0, 40, 0);
 			cameraControls.maxDistance = 400;
 			cameraControls.minDistance = 10;
-			//  			cameraControls.update();
+			//  cameraControls.update();
 
 			var loader = new THREE.TextureLoader();
 
@@ -116,10 +118,13 @@ a {
 			material.bumpMap = loader.load("img/textura_bump.png");
 			material.bumpScale = 1;
 
-			// 			ground2.position.z -= 150;
-			// 			ground2.position.x += 50;
-			// 			ground2.rotateZ(-Math.PI / 2);
 			scene.add(ground);
+
+			var obj = {dir:FRENTE, positions:ground}
+
+			fullGround.push(obj);
+
+			console.info(ground.position);
 
 			var lastZ = 0.0;
 			var lastX = 0.0;
@@ -159,29 +164,12 @@ a {
 
 				lastX = map.position.x;
 				lastZ = map.position.z;
+
+				//console.info(MAP[i]);
+				var obj = {dir:MAP[i], positions:map}
+				fullGround.push(obj);
 				scene.add(map);
 			}
-
-			var verticalMirror = new THREE.Mirror(60, 60, {
-				clipBias : 0.003,
-				textureWidth : WIDTH,
-				textureHeight : HEIGHT,
-				color : 0x889999
-			});
-			verticalMirror.position.y = 35;
-			verticalMirror.position.z = -45;
-
-			sphereGroup = new THREE.Object3D();
-			scene.add(sphereGroup);
-
-			var geometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1);
-			var material = new THREE.MeshPhongMaterial({
-				color : 0xffffff,
-				emissive : 0x444444
-			});
-			var sphereCap = new THREE.Mesh(geometry, material);
-			sphereCap.position.y = -15 * Math.sin(Math.PI / 180 * 30) - 0.05;
-			sphereCap.rotateX(-Math.PI);
 
 			var geometry = new THREE.SphereGeometry(15, 24, 24, 15, 15);
 			var halfSphere = new THREE.Mesh(geometry, material);
@@ -202,6 +190,7 @@ a {
 			});
 
 			scene.add(smallSphere);
+			console.info(smallSphere.position);
 
 			// lights
 			mainLight = new THREE.PointLight(0xcccccc, 1.5, 250);
@@ -212,6 +201,9 @@ a {
 		var velocidadeMax = 5;
 		var velocidade = 0;
 		var rotacaoVelo = 0.2;
+
+		var length = fullGround.length;
+		var b = false;
 
 		function move(code) {
 // 			var timer = Date.now() * 0.01;
@@ -229,7 +221,10 @@ a {
 			if (velocidade < velocidadeMax) {
 				velocidade += 0.4;
 			}
-			smallSphere.position.y = 24 * Math.sin(Math.PI / 180 * 30);
+
+			if (!b) {
+				smallSphere.position.y = 24 * Math.sin(Math.PI / 180 * 30);
+			}
 		}
 
 		function moveRigth(timer) {
@@ -261,17 +256,25 @@ a {
 		}
 
 		var rigth = false, up = false, down = false, left = false;
-		
+		var rolling = false;
 		function reset() {
 			rigth = false;
 			up = false;
 			left = false;
 			down = false;
 		}
-		
+
 		function animate() {
 
 			requestAnimationFrame(animate);
+
+			if (keyboard.pressed("p")) {
+				rolling = true;
+			}
+
+			if (b) {
+				smallSphere.position.y -= 1.5;
+			}
 
 			if (keyboard.pressed("d")) {
 				move(100);
@@ -281,7 +284,7 @@ a {
 				move(97);
 				reset();
 				left = true;
-			} else if (keyboard.pressed("w")) {
+			} else if (rolling) {
 				move(119);
 				reset();
 				up = true;
@@ -318,7 +321,7 @@ a {
 			} else {
 				reset();
 			}
-			
+
 			var timer = Date.now() * 0.01;
 			camera.lookAt(smallSphere.position);
 			// 			sphereGroup.position.x += 0.2;
@@ -337,6 +340,40 @@ a {
 			// 			mainLight.target = smallSphere;
 
 			// 			cameraControls.update();
+
+			var estouDentroDoMapa = true;
+
+			for (var i=0; i < length; i++) {
+				var positions = fullGround[i].positions;
+				var direcao = fullGround[i].dir;
+				var limiteY;
+				var limitX = 0;
+				if (direcao == FRENTE) {
+						limitX = -25;
+				} else if (direcao == DIREITA) {
+					limiteX = 100;
+				}
+
+				var bolaX = smallSphere.position.x;
+
+				// console.info(smallSphere.position);
+				// if (bolaX >= (positions.position.x -25)) {
+				// 			b = false;
+				// 			entrou = true;
+				// 			break;
+				// }
+
+					if (bolaX >= (positions.position.x + 25) || (bolaX <= positions.position.x - 25))  {
+							estouDentroDoMapa = false;
+							console.log(smallSphere.position.x);
+							console.log(positions.position.x);
+							break;
+					}
+				}
+
+			if (!estouDentroDoMapa) {
+					b = true;
+			}
 
 			renderer.render(scene, camera);
 		}

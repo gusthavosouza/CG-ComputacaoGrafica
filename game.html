@@ -74,9 +74,9 @@ a {
 
 		function init() {
 
-			var MAP = [FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
+			var MAP = [ FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
 					FRENTE, DIREITA, DIREITA, FRENTE, ESQUERDA, ESQUERDA,
-					FRENTE, FRENTE];
+					FRENTE, FRENTE ];
 			var container = document.getElementById('container');
 
 			// renderer
@@ -120,11 +120,9 @@ a {
 
 			scene.add(ground);
 
-			var obj = {dir:FRENTE, positions:ground}
+			fullGround.push(ground);
 
-			fullGround.push(obj);
-
-			console.info(ground.position);
+			console.info(ground);
 
 			var lastZ = 0.0;
 			var lastX = 0.0;
@@ -165,33 +163,22 @@ a {
 				lastX = map.position.x;
 				lastZ = map.position.z;
 
-				//console.info(MAP[i]);
-				var obj = {dir:MAP[i], positions:map}
-				fullGround.push(obj);
+				fullGround.push(map);
 				scene.add(map);
 			}
 
-			var geometry = new THREE.SphereGeometry(15, 24, 24, 15, 15);
-			var halfSphere = new THREE.Mesh(geometry, material);
-			// 			halfSphere.add(sphereCap);
-			halfSphere.rotateX(-Math.PI / 180 * 135);
-			halfSphere.rotateZ(-Math.PI / 180 * 20);
-			halfSphere.position.y = 7.5 + 15 * Math.sin(Math.PI / 180 * 30);
-
-			var geometry = new THREE.IcosahedronGeometry(12, 5);
-
+			var geometry = new THREE.IcosahedronGeometry(12, 2);
 			var material = new THREE.MeshPhongMaterial();
 
 			smallSphere = new THREE.Mesh(geometry, material);
-			smallSphere.position.y = 24 * Math.sin(Math.PI / 180 * 30);
+			smallSphere.position.y = 24 * Math.sin(Math.PI / 180 * 30); // 12
+			// 			smallSphere.position.y = -12;
 
 			material.map = loader.load("img/textura.jpg", function(texture) {
 				smallSphere.map = texture;
 			});
 
 			scene.add(smallSphere);
-			console.info(smallSphere.position);
-
 			// lights
 			mainLight = new THREE.PointLight(0xcccccc, 1.5, 250);
 			mainLight.position.y = 60;
@@ -206,7 +193,7 @@ a {
 		var b = false;
 
 		function move(code) {
-// 			var timer = Date.now() * 0.01;
+			// 			var timer = Date.now() * 0.01;
 			var timer = 0.0051;
 			if (code == 119) { // sobe
 				moveUp(timer);
@@ -284,7 +271,7 @@ a {
 				move(97);
 				reset();
 				left = true;
-			} else if (rolling) {
+			} else if (keyboard.pressed("w")) {
 				move(119);
 				reset();
 				up = true;
@@ -340,42 +327,45 @@ a {
 			// 			mainLight.target = smallSphere;
 
 			// 			cameraControls.update();
+			colided();
+			renderer.render(scene, camera);
+		}
 
+		function colided() {
 			var estouDentroDoMapa = true;
+				
+			var ballX = smallSphere.position.x;
+			var ballY = smallSphere.position.z;
+			var ballZ = smallSphere.position.z;
+			
+			for (var i = 0; i < length; i++) {
 
-			for (var i=0; i < length; i++) {
-				var positions = fullGround[i].positions;
-				var direcao = fullGround[i].dir;
-				var limiteY;
-				var limitX = 0;
-				if (direcao == FRENTE) {
-						limitX = -25;
-				} else if (direcao == DIREITA) {
-					limiteX = 100;
-				}
+				var ground = fullGround[i];
 
-				var bolaX = smallSphere.position.x;
-
-				// console.info(smallSphere.position);
-				// if (bolaX >= (positions.position.x -25)) {
-				// 			b = false;
-				// 			entrou = true;
-				// 			break;
-				// }
-
-					if (bolaX >= (positions.position.x + 25) || (bolaX <= positions.position.x - 25))  {
-							estouDentroDoMapa = false;
-							console.log(smallSphere.position.x);
-							console.log(positions.position.x);
-							break;
+				for (var vertexIndex = 0; vertexIndex < ground.geometry.vertices.length; vertexIndex++) {
+					var groundX = ground.geometry.vertices[vertexIndex].x;
+					var groundY = ground.geometry.vertices[vertexIndex].y;
+					
+					if (groundX < 0 && ballX < (groundX - ground.position.x)) {
+						estouDentroDoMapa = false;
+						break;
 					}
+					
+					if (groundX > 0 && ballX > (groundX + ground.position.x)) {
+						estouDentroDoMapa = false;
+						break;
+					}
+					
+// 					if (groundY < 0 && ballY > (groundY - ground.position.z)) {
+// 						estouDentroDoMapa = true;
+// 						break;
+// 					}
 				}
-
-			if (!estouDentroDoMapa) {
-					b = true;
 			}
 
-			renderer.render(scene, camera);
+			if (!estouDentroDoMapa) {
+				b = true;
+			}
 		}
 	</script>
 </body>

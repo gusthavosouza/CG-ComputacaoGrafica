@@ -71,6 +71,20 @@ a {
 		var DIREITA = 2;
 		var ESQUERDA = 3;
 
+		var OBSTACULO = {
+			pos : FRENTE
+		};
+
+		var OBSTACULO_DIREITA = {
+			pos : DIREITA
+		};
+
+		var OBSTACULO_ESQUERDA = {
+			pos : ESQUERDA
+		};
+
+		var OBSTACULOS = [];
+
 		init();
 		animate();
 
@@ -80,8 +94,9 @@ a {
 			// 					FRENTE, DIREITA, DIREITA, FRENTE, ESQUERDA, ESQUERDA,
 			// 					FRENTE, FRENTE ];
 
-			var MAP = [ FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE,
-					FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE ];
+			var MAP = [ FRENTE, FRENTE, OBSTACULO, FRENTE, OBSTACULO,
+					OBSTACULO_DIREITA, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE,
+					FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE ];
 
 			var container = document.getElementById('container');
 
@@ -154,6 +169,16 @@ a {
 			material.bumpMap = loader.load("img/ground_texture.png");
 			material.bumpScale = 1;
 
+			var texture = new THREE.TextureLoader()
+					.load('img/caixa_textura.jpg');
+			var geometry = new THREE.BoxBufferGeometry(25, 25, 25);
+			var material = new THREE.MeshBasicMaterial({
+				map : texture
+			});
+
+			var cube = new THREE.Mesh(geometry, material);
+			cube.position.y = 15;
+
 			scene.add(ground);
 
 			fullGround.push(ground);
@@ -164,9 +189,9 @@ a {
 			var lastX = 0.0;
 
 			var obj = {
-				xD : -XX/2,
+				xD : -XX / 2,
 				zD : 0,
-				xA : XX/2,
+				xA : XX / 2,
 				zA : -150,
 				lido : 0
 			};
@@ -197,6 +222,26 @@ a {
 					map.position.z = lastZ;
 				}
 
+				if (MAP[i] == OBSTACULO || MAP[i] == OBSTACULO_DIREITA
+						|| MAP[i] == OBSTACULO_ESQUERDA) {
+					var cub = cube.clone();
+					cub.position.z = lastZ;
+
+					var POS = MAP[i].pos;
+
+					if (POS == FRENTE) {
+						cub.position.x = 0;
+					} else if (POS == DIREITA) {
+						cub.position.x = 25;
+					} else if (POS == ESQUERDA) {
+						cub.position.x = -25;
+					}
+
+					OBSTACULOS.push(cub.position);
+
+					scene.add(cub);
+				}
+
 				var obj = {
 					xD : lastX,
 					zD : lastZ,
@@ -206,8 +251,8 @@ a {
 				};
 
 				if (MAP[i] == FRENTE) {
-					obj.xD = -XX/2;
-					obj.xA = XX/2;
+					obj.xD = -XX / 2;
+					obj.xA = XX / 2;
 
 					obj.zD = lastZ;
 					obj.zA = lastZ - 150;
@@ -268,6 +313,7 @@ a {
 		// 		var length = fullGround.length;
 		var length = collision.length;
 		var b = false;
+		var colidiuNaCaixa = false;
 
 		function move(code) {
 			// 			var timer = Date.now() * 0.01;
@@ -347,6 +393,14 @@ a {
 				rolling = true;
 			}
 
+			if (colidiuNaCaixa) {
+				smallSphere.position.y += 1;
+				smallSphere.position.z += 5;
+				if (smallSphere.position.y > 15) {
+					colidiuNaCaixa = false;
+				}
+			}
+			
 			if (b) {
 				smallSphere.position.y -= 1;
 				if (smallSphere.position.y <= -150) {
@@ -358,18 +412,17 @@ a {
 				move(100);
 				reset();
 				rigth = true;
-			} 
+			}
 			if (keyboard.pressed("a")) {
 				move(97);
 				reset();
 				left = true;
-				// 							} else if () {
-				} 
+			}
 			if (rolling || keyboard.pressed("w")) {
 				move(119);
 				reset();
 				up = true;
-			} 
+			}
 			if (keyboard.pressed("s")) {
 				move(115);
 				reset();
@@ -421,45 +474,32 @@ a {
 			renderer.render(scene, camera);
 		}
 
+		var estouDentroDoMapa = true;
+
 		function colided() {
-			var estouDentroDoMapa = true;
 
 			var ballX = smallSphere.position.x;
 			var ballY = smallSphere.position.z;
 			var ballZ = smallSphere.position.z;
 
-			var aux = -1;
-			for (var i = 0; i < collision.length; i++) {
-				if (ballZ <= collision[i].zD
-						&& ballZ * -1 <= collision[i].zA * -1) {
-					aux = i;
-					break;
-				}
-			}
-
-			if (aux >= 0) {
-
-				collision[aux].lido++;
-				console.info(aux);
-				console.info(collision[aux]);
-
-				var xD = collision[aux].xD;
-				var xA = collision[aux].xA;
-
-				if (xA > 0 && ballX > 0 && ballX > xA) {
-					estouDentroDoMapa = false;
-				}
-
-				if (xD < 0 && ballX < 0 && ballX < xD) {
-					estouDentroDoMapa = false;
-				}
-			}
-
-			if (aux < 0) {
+			if (ballX < 0 && ballX < -55) {
 				estouDentroDoMapa = false;
 			}
 
-			if (!estouDentroDoMapa) {
+			if (ballX > 0 && ballX >= 55) {
+				estouDentroDoMapa = false;
+			}
+
+			for (var i = 0; i < OBSTACULOS.length; i++) {
+				var pos = OBSTACULOS[i];
+// 				console.info(pos.distanceTo(smallSphere.position));
+				if (pos.distanceTo(smallSphere.position) <= 22) {
+					colidiuNaCaixa = true;
+					console.info('colidiu');
+				}
+			}
+
+			if (!estouDentroDoMapa || colidiuNaCaixa) {
 				b = true;
 				rolling = false;
 			}

@@ -23,6 +23,22 @@ body {
 	text-align: center;
 }
 
+.button {
+	background-color: #e7e7e7;
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 32px;
+	color: black;
+	position: absolute;
+	top: 45%;
+	left: 45%;
+	cursor: pointer;
+}
+
 a {
 	color: #00f;
 }
@@ -30,7 +46,18 @@ a {
 </head>
 <body>
 
-	<div id="container"></div>
+	<div id="container">
+		<div align="center" id="iniciarGame"
+			style="color: white; font-weight: bold; padding: 5px; font-size: 5em;">
+			<span style="float: left;">PONTUAÇÃO</span> <span id="placar">0.0</span>
+			<span style="float: right;">km</span>
+		</div>
+
+		<div id="jogarMenu" align="center">
+			<button onclick="jogar();" class="button">JOGAR</button>
+		</div>
+
+	</div>
 
 	<script src="lib/build/three.min.js"></script>
 	<script src="lib/build/controls/orbit_controls.js"></script>
@@ -38,7 +65,13 @@ a {
 	<script src="lib/build/controls/THREEx.KeyboardState.js"></script>
 
 	<script>
-		// scene size
+		function jogar() {
+			document.getElementById('jogarMenu').style = 'display:none';
+			init();
+			animate();
+			rolling = true;
+		}
+
 		var WIDTH = window.innerWidth;
 		var HEIGHT = window.innerHeight;
 
@@ -56,9 +89,7 @@ a {
 		var keyboard = new THREEx.KeyboardState();
 		var mainLight, soloLight;
 		var background;
-
-		var fullGround = new Array();
-		var collision = new Array();
+		var placar = document.getElementById('placar');
 
 		var audio = document.createElement('audio');
 		var source = document.createElement('source');
@@ -84,9 +115,6 @@ a {
 		};
 
 		var OBSTACULOS = [];
-
-		init();
-		animate();
 
 		function init() {
 
@@ -181,22 +209,8 @@ a {
 
 			scene.add(ground);
 
-			fullGround.push(ground);
-
-			console.info(ground);
-
 			var lastZ = 0.0;
 			var lastX = 0.0;
-
-			var obj = {
-				xD : -XX / 2,
-				zD : 0,
-				xA : XX / 2,
-				zA : -150,
-				lido : 0
-			};
-
-			collision.push(obj);
 
 			for (var i = 0; i < MAP.length; i++) {
 				var map = ground.clone();
@@ -242,41 +256,6 @@ a {
 					scene.add(cub);
 				}
 
-				var obj = {
-					xD : lastX,
-					zD : lastZ,
-					xA : 0,
-					zA : 0,
-					lido : 0
-				};
-
-				if (MAP[i] == FRENTE) {
-					obj.xD = -XX / 2;
-					obj.xA = XX / 2;
-
-					obj.zD = lastZ;
-					obj.zA = lastZ - 150;
-				}
-
-				if (MAP[i] == DIREITA) {
-					obj.xD = lastX - 25;
-					obj.xA = lastX + 25;
-
-					obj.zD = lastZ;
-					obj.zA = lastZ - 150;
-				}
-
-				if (MAP[i] == ESQUERDA) {
-					obj.xD = lastX - 50;
-					obj.xA = lastX - 25;
-
-					obj.zD = lastZ;
-					obj.zA = lastZ - 150;
-				}
-
-				collision.push(obj);
-
-				fullGround.push(map);
 				scene.add(map);
 			}
 
@@ -286,7 +265,6 @@ a {
 			smallSphere = new THREE.Mesh(geometry, material);
 			smallSphere.position.y = 24 * Math.sin(Math.PI / 180 * 30); // 12
 			smallSphere.position.z = 0;
-			// 			smallSphere.position.y = -12;
 
 			material.map = loader.load("img/snow_texture.jpg",
 					function(texture) {
@@ -310,13 +288,10 @@ a {
 		var velocidade = 0;
 		var rotacaoVelo = 0.2;
 
-		// 		var length = fullGround.length;
-		var length = collision.length;
 		var b = false;
 		var colidiuNaCaixa = false;
 
 		function move(code) {
-			// 			var timer = Date.now() * 0.01;
 			var timer = 0.0051;
 			if (code == 119) { // sobe
 				moveUp(timer);
@@ -374,7 +349,7 @@ a {
 		}
 
 		var rigth = false, up = false, down = false, left = false;
-		var rolling = true;
+		var rolling = false;
 
 		function reset() {
 			rigth = false;
@@ -387,20 +362,28 @@ a {
 
 		function animate() {
 
-			requestAnimationFrame(animate);
+			if (!b && !colidiuNaCaixa || colidiuNaCaixa) {
+				requestAnimationFrame(animate);
+			}
+
+			if (!b && !colidiuNaCaixa) {
+				placar.innerHTML = smallSphere.position.z.toFixed(1) * -1;
+			}
 
 			if (keyboard.pressed("p")) {
 				rolling = true;
 			}
 
 			if (colidiuNaCaixa) {
+				console.info(colidiuNaCaixa);
 				smallSphere.position.y += 1;
 				smallSphere.position.z += 5;
-				if (smallSphere.position.y > 15) {
+				if (smallSphere.position.z > 450) {
 					colidiuNaCaixa = false;
+					document.getElementById('jogarMenu').style = '';
 				}
 			}
-			
+
 			if (b) {
 				smallSphere.position.y -= 1;
 				if (smallSphere.position.y <= -150) {
@@ -492,7 +475,6 @@ a {
 
 			for (var i = 0; i < OBSTACULOS.length; i++) {
 				var pos = OBSTACULOS[i];
-// 				console.info(pos.distanceTo(smallSphere.position));
 				if (pos.distanceTo(smallSphere.position) <= 22) {
 					colidiuNaCaixa = true;
 					console.info('colidiu');

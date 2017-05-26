@@ -76,9 +76,13 @@ a {
 
 		function init() {
 
-			var MAP = [ FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
-					FRENTE, DIREITA, DIREITA, FRENTE, ESQUERDA, ESQUERDA,
-					FRENTE, FRENTE ];
+			// 			var MAP = [ FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
+			// 					FRENTE, DIREITA, DIREITA, FRENTE, ESQUERDA, ESQUERDA,
+			// 					FRENTE, FRENTE ];
+
+			var MAP = [ FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE,
+					FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE, FRENTE ];
+
 			var container = document.getElementById('container');
 
 			// renderer
@@ -127,7 +131,8 @@ a {
 
 			scene.add(background);
 
-			var planeGeo = new THREE.PlaneGeometry(50.1, 150);
+			var XX = 100.1;
+			var planeGeo = new THREE.PlaneGeometry(100.1, 150);
 
 			var material = new THREE.MeshPhongMaterial();
 
@@ -137,8 +142,8 @@ a {
 
 			ground.rotateX(-Math.PI / 2);
 
-			ground.position.z = -70	;
-			
+			ground.position.z = -70;
+
 			var texturas = [];
 
 			texturas.push(loader.load("img/ground_texture.jpg"));
@@ -159,9 +164,9 @@ a {
 			var lastX = 0.0;
 
 			var obj = {
-				xD : -25,
+				xD : -XX/2,
 				zD : 0,
-				xA : 25,
+				xA : XX/2,
 				zA : -150,
 				lido : 0
 			};
@@ -201,9 +206,9 @@ a {
 				};
 
 				if (MAP[i] == FRENTE) {
-					obj.xD = lastX - 25;
-					obj.xA = lastX + 25;
-					
+					obj.xD = -XX/2;
+					obj.xA = XX/2;
+
 					obj.zD = lastZ;
 					obj.zA = lastZ - 150;
 				}
@@ -324,7 +329,7 @@ a {
 
 		var rigth = false, up = false, down = false, left = false;
 		var rolling = true;
-		
+
 		function reset() {
 			rigth = false;
 			up = false;
@@ -343,9 +348,9 @@ a {
 			}
 
 			if (b) {
-				smallSphere.position.y -= 1.5;
-				if (smallSphere.position.y == -150) {
-					b =false;
+				smallSphere.position.y -= 1;
+				if (smallSphere.position.y <= -150) {
+					b = false;
 				}
 			}
 
@@ -353,16 +358,19 @@ a {
 				move(100);
 				reset();
 				rigth = true;
-			} else if (keyboard.pressed("a")) {
+			} 
+			if (keyboard.pressed("a")) {
 				move(97);
 				reset();
 				left = true;
-// 							} else if () {
-			} else if (rolling || keyboard.pressed("w")) {
+				// 							} else if () {
+				} 
+			if (rolling || keyboard.pressed("w")) {
 				move(119);
 				reset();
 				up = true;
-			} else if (keyboard.pressed("s")) {
+			} 
+			if (keyboard.pressed("s")) {
 				move(115);
 				reset();
 				down = true;
@@ -406,7 +414,7 @@ a {
 
 			var timer = Date.now() * 0.01;
 			camera.lookAt(smallSphere.position);
-			if (iterations++ == 25) {
+			if (iterations++ == 5 && !b) {
 				colided();
 				iterations = 0;
 			}
@@ -423,20 +431,18 @@ a {
 			var aux = -1;
 			for (var i = 0; i < collision.length; i++) {
 				if (ballZ <= collision[i].zD
-						&& ballZ * -1 <= collision[i].zA * -1 
-						&& collision[i].lido < 2
-						) {
+						&& ballZ * -1 <= collision[i].zA * -1) {
 					aux = i;
 					break;
 				}
 			}
 
 			if (aux >= 0) {
-				
+
 				collision[aux].lido++;
 				console.info(aux);
 				console.info(collision[aux]);
-				
+
 				var xD = collision[aux].xD;
 				var xA = collision[aux].xA;
 

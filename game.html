@@ -67,8 +67,8 @@ a {
 	<script>
 		function jogar() {
 			document.getElementById('jogarMenu').style = 'display:none';
-			init();
-			animate();
+			b = false;
+			colidiuNaCaixa = false;
 			rolling = true;
 		}
 
@@ -116,6 +116,9 @@ a {
 
 		var OBSTACULOS = [];
 
+		init();
+		animate();
+		
 		function init() {
 
 			// 			var MAP = [ FRENTE, DIREITA, DIREITA, DIREITA, FRENTE, FRENTE,
@@ -149,7 +152,7 @@ a {
 			//  cameraControls.target.set(0, 40, 0);
 			cameraControls.maxDistance = 400;
 			cameraControls.minDistance = 10;
-			//  cameraControls.update();
+			cameraControls.update();
 
 			var loader = new THREE.TextureLoader();
 
@@ -380,7 +383,11 @@ a {
 				smallSphere.position.z += 5;
 				if (smallSphere.position.z > 450) {
 					colidiuNaCaixa = false;
+					location.reload();
 					document.getElementById('jogarMenu').style = '';
+					smallSphere.position.z = 0;
+					camera.position.set(0, 75, 160);
+					cameraControls.update();
 				}
 			}
 

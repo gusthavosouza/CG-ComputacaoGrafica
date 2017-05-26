@@ -7,7 +7,7 @@
 	content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <style>
 body {
-	color: #888888;
+	color: #3f415f;
 	font-family: Monospace;
 	font-size: 13px;
 	background-color: #000;
@@ -54,9 +54,11 @@ a {
 
 		var sphereGroup, smallSphere;
 		var keyboard = new THREEx.KeyboardState();
-		var mainLight;
+		var mainLight, soloLight;
+		var background;
 
 		var fullGround = new Array();
+		var collision = new Array();
 
 		var audio = document.createElement('audio');
 		var source = document.createElement('source');
@@ -83,6 +85,9 @@ a {
 			renderer = new THREE.WebGLRenderer();
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(WIDTH, HEIGHT);
+
+			renderer.setClearColor(0x000000, 1);
+
 			container.appendChild(renderer.domElement);
 
 			// scene
@@ -101,7 +106,28 @@ a {
 
 			var loader = new THREE.TextureLoader();
 
-			var planeGeo = new THREE.PlaneGeometry(50.1, 150.1);
+			var plan = new THREE.PlaneGeometry(1000, 1000);
+
+			var mat = new THREE.MeshPhongMaterial();
+
+			mat.side = THREE.DoubleSide;
+
+			background = new THREE.Mesh(plan, mat);
+
+			background.rotateX(-Math.PI / 2);
+
+			mat.map = loader.load("img/ground_texture.jpg", function(texture) {
+				plan.map = texture;
+			});
+
+			mat.bumpMap = loader.load("img/ground_texture.png");
+			mat.bumpScale = 1;
+
+			background.position.y = -150;
+
+			scene.add(background);
+
+			var planeGeo = new THREE.PlaneGeometry(50.1, 150);
 
 			var material = new THREE.MeshPhongMaterial();
 
@@ -111,11 +137,16 @@ a {
 
 			ground.rotateX(-Math.PI / 2);
 
-			material.map = loader.load("img/textura.jpg", function(texture) {
-				planeGeo.map = texture;
-			});
+			ground.position.z = -70	;
+			
+			var texturas = [];
 
-			material.bumpMap = loader.load("img/textura_bump.png");
+			texturas.push(loader.load("img/ground_texture.jpg"));
+			texturas.push(loader.load("img/textura_gelo_2.jpg"));
+
+			material.map = texturas[0];
+
+			material.bumpMap = loader.load("img/ground_texture.png");
 			material.bumpScale = 1;
 
 			scene.add(ground);
@@ -127,41 +158,73 @@ a {
 			var lastZ = 0.0;
 			var lastX = 0.0;
 
+			var obj = {
+				xD : -25,
+				zD : 0,
+				xA : 25,
+				zA : -150,
+				lido : 0
+			};
+
+			collision.push(obj);
+
 			for (var i = 0; i < MAP.length; i++) {
 				var map = ground.clone();
 				var index = (i + 1);
 
 				if (MAP[i] == FRENTE) {
 					lastZ -= 150;
-					if ((i - 1) >= 0 && (MAP[i - 1] == DIREITA)) {
-						lastX += 50;
-						lastZ += 50;
-					} else if ((i - 1) >= 0 && (MAP[i - 1] == ESQUERDA)) {
-						lastX -= 50;
-						lastZ += 50;
-					}
 					map.position.z = lastZ;
 					map.position.x = lastX;
 				} else if (MAP[i] == DIREITA) {
-					map.rotateZ(-Math.PI / 2);
-					lastZ -= 50;
-					lastX += 100;
+					lastZ -= 150;
+					lastX += 40;
 
 					map.position.x = lastX;
 					map.position.z = lastZ;
 
 				} else if (MAP[i] == ESQUERDA) {
-					map.rotateZ(-Math.PI / 2);
 
-					lastZ -= 50;
-					lastX -= 100;
+					lastZ -= 150;
+					lastX -= 40;
 
 					map.position.x = lastX;
 					map.position.z = lastZ;
 				}
 
-				lastX = map.position.x;
-				lastZ = map.position.z;
+				var obj = {
+					xD : lastX,
+					zD : lastZ,
+					xA : 0,
+					zA : 0,
+					lido : 0
+				};
+
+				if (MAP[i] == FRENTE) {
+					obj.xD = lastX - 25;
+					obj.xA = lastX + 25;
+					
+					obj.zD = lastZ;
+					obj.zA = lastZ - 150;
+				}
+
+				if (MAP[i] == DIREITA) {
+					obj.xD = lastX - 25;
+					obj.xA = lastX + 25;
+
+					obj.zD = lastZ;
+					obj.zA = lastZ - 150;
+				}
+
+				if (MAP[i] == ESQUERDA) {
+					obj.xD = lastX - 50;
+					obj.xA = lastX - 25;
+
+					obj.zD = lastZ;
+					obj.zA = lastZ - 150;
+				}
+
+				collision.push(obj);
 
 				fullGround.push(map);
 				scene.add(map);
@@ -172,24 +235,33 @@ a {
 
 			smallSphere = new THREE.Mesh(geometry, material);
 			smallSphere.position.y = 24 * Math.sin(Math.PI / 180 * 30); // 12
+			smallSphere.position.z = 0;
 			// 			smallSphere.position.y = -12;
 
-			material.map = loader.load("img/textura.jpg", function(texture) {
-				smallSphere.map = texture;
-			});
+			material.map = loader.load("img/snow_texture.jpg",
+					function(texture) {
+						smallSphere.map = texture;
+					});
 
 			scene.add(smallSphere);
 			// lights
 			mainLight = new THREE.PointLight(0xcccccc, 1.5, 250);
 			mainLight.position.y = 60;
+
+			soloLight = new THREE.PointLight(0xcccccc, 1.5, 500);
+			soloLight.position.y = -5;
+			soloLight.position.z = 250;
+
 			scene.add(mainLight);
+			scene.add(soloLight);
 		}
 
 		var velocidadeMax = 5;
 		var velocidade = 0;
 		var rotacaoVelo = 0.2;
 
-		var length = fullGround.length;
+		// 		var length = fullGround.length;
+		var length = collision.length;
 		var b = false;
 
 		function move(code) {
@@ -219,6 +291,8 @@ a {
 			smallSphere.position.x += 2;
 			camera.position.x += 2;
 			mainLight.position.x += 2;
+			soloLight.position.x += 2;
+			background.position.x += 2;
 		}
 
 		function moveLeft(timer) {
@@ -226,6 +300,8 @@ a {
 			smallSphere.position.x -= 2;
 			camera.position.x -= 2;
 			mainLight.position.x -= 2;
+			soloLight.position.x -= 2;
+			background.position.x = 2;
 		}
 
 		function moveUp(timer) {
@@ -233,6 +309,8 @@ a {
 			smallSphere.position.z -= 2;
 			camera.position.z -= 2;
 			mainLight.position.z -= 2;
+			soloLight.position.z -= 2;
+			background.position.z -= 2;
 		}
 
 		function moveDown(timer) {
@@ -240,16 +318,21 @@ a {
 			smallSphere.position.z += 2;
 			camera.position.z += 2;
 			mainLight.position.z += 2;
+			soloLight.position.z += 2;
+			background.position.z += 2;
 		}
 
 		var rigth = false, up = false, down = false, left = false;
-		var rolling = false;
+		var rolling = true;
+		
 		function reset() {
 			rigth = false;
 			up = false;
 			left = false;
 			down = false;
 		}
+
+		var iterations = 0;
 
 		function animate() {
 
@@ -261,6 +344,9 @@ a {
 
 			if (b) {
 				smallSphere.position.y -= 1.5;
+				if (smallSphere.position.y == -150) {
+					b =false;
+				}
 			}
 
 			if (keyboard.pressed("d")) {
@@ -271,7 +357,8 @@ a {
 				move(97);
 				reset();
 				left = true;
-			} else if (keyboard.pressed("w")) {
+// 							} else if () {
+			} else if (rolling || keyboard.pressed("w")) {
 				move(119);
 				reset();
 				up = true;
@@ -288,21 +375,29 @@ a {
 					smallSphere.position.x += moviment;
 					camera.position.x += moviment;
 					mainLight.position.x += moviment;
+					soloLight.position.x += moviment;
+					background.position.x += moviment;
 				} else if (down) {
 					smallSphere.rotation.x += moviment;
 					smallSphere.position.z += moviment;
 					camera.position.z += moviment;
 					mainLight.position.z += moviment;
+					soloLight.position.z += moviment;
+					background.position.z += moviment;
 				} else if (up) {
 					smallSphere.rotation.x -= moviment;
 					smallSphere.position.z -= moviment;
 					camera.position.z -= moviment;
 					mainLight.position.z -= moviment;
+					soloLight.position.z -= moviment;
+					background.position.z -= moviment;
 				} else if (left) {
 					smallSphere.rotation.z += moviment;
 					smallSphere.position.x -= moviment;
 					camera.position.x -= moviment;
 					mainLight.position.x -= moviment;
+					soloLight.position.x -= moviment;
+					background.position.x -= moviment;
 				}
 				velocidade -= 0.1;
 			} else {
@@ -311,62 +406,60 @@ a {
 
 			var timer = Date.now() * 0.01;
 			camera.lookAt(smallSphere.position);
-			// 			sphereGroup.position.x += 0.2;
-
-			// 			smallSphere.position.set(
-			// 					Math.cos(timer * 0.1) * 30,
-			// 					Math.abs(Math.cos(timer * 0.2)) * 20 + 5,
-			// 					Math.sin(timer * 0.1) * 30
-			// 					);
-			// 			smallSphere.rotation.y = (Math.PI / 2) - timer * 0.1;
-			// 			smallSphere.rotation.z = timer * 0.8;
-
-			// 			camera.position.z -= 1;
-			// 			camera.position.y += 5;
-
-			// 			mainLight.target = smallSphere;
-
-			// 			cameraControls.update();
-			colided();
+			if (iterations++ == 25) {
+				colided();
+				iterations = 0;
+			}
 			renderer.render(scene, camera);
 		}
 
 		function colided() {
 			var estouDentroDoMapa = true;
-				
+
 			var ballX = smallSphere.position.x;
 			var ballY = smallSphere.position.z;
 			var ballZ = smallSphere.position.z;
-			
-			for (var i = 0; i < length; i++) {
 
-				var ground = fullGround[i];
-
-				for (var vertexIndex = 0; vertexIndex < ground.geometry.vertices.length; vertexIndex++) {
-					var groundX = ground.geometry.vertices[vertexIndex].x;
-					var groundY = ground.geometry.vertices[vertexIndex].y;
-					
-					if (groundX < 0 && ballX < (groundX - ground.position.x)) {
-						estouDentroDoMapa = false;
-						break;
-					}
-					
-					if (groundX > 0 && ballX > (groundX + ground.position.x)) {
-						estouDentroDoMapa = false;
-						break;
-					}
-					
-// 					if (groundY < 0 && ballY > (groundY - ground.position.z)) {
-// 						estouDentroDoMapa = true;
-// 						break;
-// 					}
+			var aux = -1;
+			for (var i = 0; i < collision.length; i++) {
+				if (ballZ <= collision[i].zD
+						&& ballZ * -1 <= collision[i].zA * -1 
+						&& collision[i].lido < 2
+						) {
+					aux = i;
+					break;
 				}
+			}
+
+			if (aux >= 0) {
+				
+				collision[aux].lido++;
+				console.info(aux);
+				console.info(collision[aux]);
+				
+				var xD = collision[aux].xD;
+				var xA = collision[aux].xA;
+
+				if (xA > 0 && ballX > 0 && ballX > xA) {
+					estouDentroDoMapa = false;
+				}
+
+				if (xD < 0 && ballX < 0 && ballX < xD) {
+					estouDentroDoMapa = false;
+				}
+			}
+
+			if (aux < 0) {
+				estouDentroDoMapa = false;
 			}
 
 			if (!estouDentroDoMapa) {
 				b = true;
+				rolling = false;
 			}
+
 		}
 	</script>
 </body>
 </html>
+

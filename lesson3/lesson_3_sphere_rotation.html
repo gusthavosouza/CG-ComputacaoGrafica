@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Aula 2 - CG</title>
+    <meta name="author" content="Gustavo de Souza">
+    <script src="../lib/build/three.min.js"></script>
+    <style media="screen">
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html, body {
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+
+    <script type="text/javascript">
+
+      var scene = new THREE.Scene(); // instancia a cena
+      var camera = new THREE.PerspectiveCamera(160, window.innerWidth / window.innerHeight, 0.1, 1000); // instancia a camera
+      var renderer = new THREE.WebGLRenderer(); // instancia o renderizador
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      // limpa a tela com a cor definida
+      renderer.setClearColor(0xFFFFFF, 1);
+
+      document.body.appendChild(renderer.domElement);
+
+      camera.position.z = 6;
+      camera.position.x = 1;
+
+      var geometry = new THREE.BoxGeometry( 4, 4, 4 );
+      // var material = new THREE.MeshBasicMaterial( {color: 0x333, wireframe: true} );
+      // var cube = new THREE.Mesh( geometry, material );
+
+      var dodeca = new THREE.DodecahedronGeometry(5, 3);
+
+      var dodecaMaterial = new THREE.MeshBasicMaterial( {color: 0x00ff00, wireframe: true} );
+      // var meshDodeca = new THREE.Mesh( dodeca, dodecaMaterial );
+
+      var combined = new THREE.Geometry();
+
+      combined.merge(geometry, geometry.matrix);
+      combined.merge(dodeca, dodeca.matrix);
+
+      var meshDodeca = new THREE.Mesh( combined, dodecaMaterial );
+
+      scene.add(meshDodeca);
+      // scene.add(meshDodeca);
+
+      render();
+
+      function render () {
+
+        requestAnimationFrame(render);
+
+        meshDodeca.rotation.z += 0.01;
+        meshDodeca.rotation.x -= 0.01;
+        meshDodeca.rotation.y += 0.005;
+
+        renderer.render(scene, camera);
+      }
+
+    </script>
+
+  </body>
+</html>

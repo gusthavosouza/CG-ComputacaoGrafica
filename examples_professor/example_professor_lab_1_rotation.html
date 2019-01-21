@@ -1,0 +1,96 @@
+<!Doctype html>
+
+<html lang="pt-br">
+
+<head>
+ <title>USCS - Exercício - 1 de Setembro</title>
+
+ <meta charset="utf-8">
+ <meta name="author" content="Ricardo Resende de Mendonça"/>
+ <meta name="description" content="USCS - Three.js - Computação Gráfica"/>
+ <meta name="keywords" content="THREE.js, Vertices, Faces"/>
+
+ <script src="lib/build/three.min.js"></script>
+
+<style>
+  * { margin: 0;
+      padding: 0;
+    }
+  html, body{
+      overflow: hidden;
+    }
+</style>
+
+</head>
+
+<body>
+
+<script>
+
+	//Definição da cena
+	var scene = new THREE.Scene();
+	//Definição da câmera >>> PerspectiveCamera( fov, aspect, near, far )
+	var camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
+	//Definição do renderizador
+	var renderer = new THREE.WebGLRenderer( {antialias : true} );
+
+  camera.position.y = 150;
+	camera.position.z = 500;
+
+	//Tamanho da viewport
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+	// Primeiro parametro é a cor em valor hexadecimal
+	// Segundo parametro é o valor do canal alpha
+	renderer.setClearColor( 0x000000, 1);
+
+	//Adicionamos um novo elemento em nossa página HTML atraves do JavaScript
+	document.body.appendChild( renderer.domElement );
+
+  var geometry = new THREE.BoxGeometry( 200, 200, 200);
+
+	//Definição de um material basico de cor vermelho com colorização em ambos os lados
+	var material1 = new THREE.MeshBasicMaterial({
+		 color: 0x00FF00,
+	   transparent:true,
+     opacity: 0.2
+	});
+
+	var material2 = new THREE.MeshBasicMaterial({
+		colors: 0x006400,
+		wireframe: true,
+	});
+
+	//Definição da malha de poligonos
+	var mesh2 = new THREE.SceneUtils.createMultiMaterialObject(
+    geometry,
+    [material1, material2]
+  );
+
+  var geometry22 = new THREE.SphereGeometry( 60, 10, 10 );
+ var mat = new THREE.MeshBasicMaterial( {color: 0xffff00, wireframe:true} );
+var sphere = new THREE.Mesh( geometry22, mat );
+scene.add( sphere );
+
+  mesh2.position.y = 150;
+
+  scene.add(mesh2);
+
+  sphere.position.y = 130;
+
+  function render() {
+
+      requestAnimationFrame(render);
+
+      mesh2.rotation.y += 0.01;
+      mesh2.rotation.x += 0.01;
+
+      renderer.render( scene, camera );
+  }
+
+  render();
+
+</script>
+</body>
+
+</html>
